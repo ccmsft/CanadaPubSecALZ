@@ -236,8 +236,9 @@ if ($LoginServicePrincipalJson -ne $null) {
   $ServicePrincipal = ($LoginServicePrincipalJson | ConvertFrom-SecureString -AsPlainText) | ConvertFrom-Json
   
   # Check if we're doing certificate-based authentication
-  if(Get-Member -inputobject $ServicePrincipal -name "thumbprint" -Membertype Properties) {
-    Write-Host "Using provided thumbprint..."
+  if(Get-Member -inputobject $ServicePrincipal -name "cert" -Membertype Properties) {
+    Write-Host "Using provided certificate..."
+    $ServicePrincipal.cert | Import-Certificate 
     Connect-AzAccount -ServicePrincipal -CertificateThumbprint $ServicePrincipal.thumbprint -ApplicationId $ServicePrincipal.appId -Tenant $ServicePrincipal.tenant
   }
   else {
