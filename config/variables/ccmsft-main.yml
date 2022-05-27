@@ -1,0 +1,68 @@
+# ----------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+#
+# THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, 
+# EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES 
+# OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+# ----------------------------------------------------------------------------------
+
+# Environment YAML files can be used to supplement
+# the variables specified in 'config/variables/common.yml'. You can:
+#   * Override existing common-vars.yml variable value settings, and
+#   * Create new variable values not present in common-vars.yml
+#
+# The naming convention for these YAML files is:
+#   {organization}-{branch}.yml
+#
+# where {organization} is the organization variable from the
+#         common.yml file
+# and   {branch} is the Azure Repos branch name used by the
+#         currently executing pipeline.
+
+variables:
+  deploymentRegion: canadacentral
+
+  # Management Groups
+  var-managementgroup-hierarchy: >
+    {
+      "name": "Tenant Root Group",
+      "id": "df6fa959-89b4-44f0-9a0a-5872af34f1f0",
+      "children": [
+        {
+          "name": "Azure Landing Zones for Canadian Public Sector",
+          "id": "pubsec",
+          "children": [
+            {
+              "name": "Platform", "id": "pubsecPlatform",
+              "children": [
+                { "name": "Identity", "id": "pubsecPlatformIdentity", "children": [] },
+                { "name": "Connectivity", "id": "pubsecPlatformConnectivity", "children": [] },
+                { "name": "Management", "id": "pubsecPlatformManagement", "children": [] }
+              ]
+            },
+            {
+              "name": "LandingZones", "id": "pubsecLandingZones",
+              "children": [
+                { "name": "DevTest", "id": "pubsecLandingZonesDevTest", "children": [] },
+                { "name": "QA", "id": "pubsecLandingZonesQA", "children": [] },
+                { "name": "Prod", "id": "pubsecLandingZonesProd", "children": [] }
+              ]
+            },
+            {
+              "name": "Sandbox", "id": "pubsecSandbox",
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+
+  # Logging
+  var-logging-region: canadacentral
+  var-logging-managementGroupId: pubsecPlatformManagement
+  var-logging-subscriptionId: 0483f986-032e-46c3-93ef-b7b5dc871462
+  var-logging-configurationFileName: logging.parameters.json
+
+  ## This parameter is only used for HIPAA/HITRUST Policy Assignment
+  var-logging-diagnosticSettingsforNetworkSecurityGroupsStoragePrefix: pubsecnsg

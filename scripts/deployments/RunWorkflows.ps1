@@ -234,9 +234,19 @@ if (-not [string]::IsNullOrEmpty($LoginInteractiveTenantId)) {
 if ($LoginServicePrincipalJson -ne $null) {
   Write-Host "Logging in to Azure using service principal..."
   $ServicePrincipal = ($LoginServicePrincipalJson | ConvertFrom-SecureString -AsPlainText) | ConvertFrom-Json
-  $Password = ConvertTo-SecureString $ServicePrincipal.password -AsPlainText -Force
-  $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $ServicePrincipal.appId, $Password
-  Connect-AzAccount -ServicePrincipal -TenantId $ServicePrincipal.tenant -Credential $Credential
+  
+  # Check if we're doing certificate-based authentication
+  if(Get-Member -inputobject $ServicePrincipal -name "thumbprint" -Membertype Properties) {
+    Write-Host "Using provided thumbprint..."
+    Connect-AzAccount -ServicePrincipal -CertificateThumbprint $ServicePrincipal.thumbprint -ApplicationId $ServicePrincipal.appId -Tenant $ServicePrincipal.tenant
+  }
+  else {
+    # Secret-based authentication
+    Write-Host "Using provided secret..."
+    $Password = ConvertTo-SecureString $ServicePrincipal.password -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $ServicePrincipal.appId, $Password
+    Connect-AzAccount -ServicePrincipal -TenantId $ServicePrincipal.tenant -Credential $Credential
+  }
 }
 
 # Set Azure Landing Zones Context
