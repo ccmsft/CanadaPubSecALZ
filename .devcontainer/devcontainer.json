@@ -1,0 +1,13 @@
+{ 
+    "name": "CanadaPubSecALZ Container",
+    "dockerFile": "Dockerfile",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.azurecli",
+                "ms-vscode.powershell",
+                "ms-azuretools.vscode-bicep"
+            ]
+        }
+    }
+}
