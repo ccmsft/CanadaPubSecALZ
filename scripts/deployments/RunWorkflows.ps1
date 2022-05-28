@@ -238,17 +238,25 @@ if ($LoginServicePrincipalJson -ne $null) {
   # Check if we're doing certificate-based authentication
   if(Get-Member -inputobject $ServicePrincipal -name "cert" -Membertype Properties) {
     Write-Host "Using provided certificate..."
-    # Use the current user "My" store:
+    # Use the current user store:
     $StoreName = [System.Security.Cryptography.X509Certificates.StoreName]::My 
     $StoreLocation = [System.Security.Cryptography.X509Certificates.StoreLocation]::CurrentUser 
     $Store = [System.Security.Cryptography.X509Certificates.X509Store]::new($StoreName, $StoreLocation) 
-    # $Flag = [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable 
-    $Certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($ServicePrincipal.cert) 
+    $Flag = [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable 
+    $Certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new( `
+      [Convert]::FromBase64String($ServicePrincipal.cert), `
+      $ServicePrincipal.password, `
+      $Flag `
+    )
     $Store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite) 
     $Store.Add($Certificate) 
     $Store.Close() 
     
-    Connect-AzAccount -ServicePrincipal -CertificateThumbprint $ServicePrincipal.thumbprint -ApplicationId $ServicePrincipal.appId -Tenant $ServicePrincipal.tenant
+    Connect-AzAccount `
+      -ServicePrincipal `
+      -CertificateThumbprint $Certificate.Thumbprint `
+      -ApplicationId $ServicePrincipal.appId `
+      -Tenant $ServicePrincipal.tenant
   }
   else {
     # Secret-based authentication
